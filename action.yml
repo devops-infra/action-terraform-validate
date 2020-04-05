@@ -1,0 +1,14 @@
+name: "Validate Terraform modules"
+author: "Krzysztof Szyper <biotyk@mail.com>"
+description: "GitHub Action that will run terraform validate."
+inputs:
+  dir_filter:
+    description: "Filter for directories to check. Check all by default."
+    required: false
+    default: "*"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+branding:
+  color: "white"
+  icon: "wind"
