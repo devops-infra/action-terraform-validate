@@ -33,37 +33,37 @@ dir_filter | No | `*` | Prefixes or sub-directories to search for Terraform modu
 
 ## Examples
 
-
+Validate whole Terraform setup in repository root
 ```yaml
-name: Check TFLint
+name: Validate Terraform
 on:
   push:
     branches:
       - "**"
 jobs:
-  format-hcl:
+  terraform-validate:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Check linting of Terraform files
+    - name: Validate Terraform configuration
       uses: docker://christophshyper/action-terrraform-validate:latest
 ```
 
-
+Validate Terraform modules only in `modules/aws` and `modules/gcp` directories
 ```yaml
-name: Check TFLint with custom config
+name: Validate Terraform
 on:
   push:
     branches:
       - "**"
 jobs:
-  format-hcl:
+  terraform-validate:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Check linting of Terraform modules
+    - name: Validate Terraform modules
       uses: docker://christophshyper/action-terrraform-validate:latest
       with:
         dir_filter: modules/aws,modules/gcp
