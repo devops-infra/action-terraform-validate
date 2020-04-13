@@ -1,6 +1,6 @@
 name: "Validate Terraform modules"
 author: "Krzysztof Szyper <biotyk@mail.com>"
-description: "GitHub Action that will run terraform validate."
+description: "GitHub Action automatically validating Terraform modules."
 inputs:
   dir_filter:
     description: "Filter for directories to check. Check all by default."
