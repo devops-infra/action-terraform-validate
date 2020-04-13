@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-RETURN=0
+# Return code
+RET_CODE=0
 
 WORK_DIR=/github/workspace
 
@@ -13,11 +14,11 @@ for PREFIX in "${ARRAY[@]}"; do
     for DIRECTORY in $(ls -d ${PREFIX}*/); do
         cd ${DIRECTORY}
         echo -e "\nDirectory: ${DIRECTORY}"
-        terraform init || RETURN=1
-        terraform validate || RETURN=1
+        terraform init || RET_CODE=1
+        terraform validate || RET_CODE=1
         rm -rf .terraform/
         cd ${WORK_DIR}
     done
 done
 
-exit ${RETURN}
+exit ${RET_CODE}
