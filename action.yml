@@ -1,5 +1,5 @@
 name: GitHub Action validating Terraform modules
-author: Krzysztof Szyper / ChristophShyper <biotyk@mail.com>
+author: Krzysztof Szyper / ChristophShyper / biotyk@mail.com
 description: GitHub Action automatically validating Terraform modules
 inputs:
   dir_filter:
