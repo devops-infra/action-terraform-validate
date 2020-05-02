@@ -2,7 +2,7 @@
 
 **GitHub Action automatically validating Terraform modules.**
 
-Dockerized as [christophshyper/action-terraform-validate](https://hub.docker.com/repository/docker/christophshyper/action-terraform-validate).
+Dockerized as [devopsinfra/action-terraform-validate](https://hub.docker.com/repository/docker/devopsinfra/action-terraform-validate).
 
 Features:
 * Main action is using `terraform validate`.
@@ -22,11 +22,11 @@ Features:
 ](https://github.com/devops-infra/action-terraform-validate "shields.io")
 <br>
 [
-![DockerHub](https://img.shields.io/badge/DockerHub-christophshyper%2Faction--terraform--validate-blue.svg?style=plastic&logo=docker)
-![Docker version](https://img.shields.io/docker/v/christophshyper/action-terraform-validate?color=blue&label=Version&logo=docker&style=plastic)
-![Image size](https://img.shields.io/docker/image-size/christophshyper/action-terraform-validate/latest?label=Image%20size&style=plastic&logo=docker)
-![Docker Pulls](https://img.shields.io/docker/pulls/christophshyper/action-terraform-validate?color=blue&label=Pulls&logo=docker&style=plastic)
-](https://hub.docker.com/r/christophshyper/action-terraform-validate "shields.io")
+![DockerHub](https://img.shields.io/badge/DockerHub-devopsinfra%2Faction--terraform--validate-blue.svg?style=plastic&logo=docker)
+![Docker version](https://img.shields.io/docker/v/devopsinfra/action-terraform-validate?color=blue&label=Version&logo=docker&style=plastic)
+![Image size](https://img.shields.io/docker/image-size/devopsinfra/action-terraform-validate/latest?label=Image%20size&style=plastic&logo=docker)
+![Docker Pulls](https://img.shields.io/docker/pulls/devopsinfra/action-terraform-validate?color=blue&label=Pulls&logo=docker&style=plastic)
+](https://hub.docker.com/r/devopsinfra/action-terraform-validate "shields.io")
 
 
 ## Reference
