@@ -50,16 +50,15 @@ COPY --from=builder /usr/bin/terraform /usr/bin/
 COPY entrypoint.sh /usr/bin/
 
 # Install needed packages
-RUN set -eux \
-  && chmod +x /usr/bin/entrypoint.sh /usr/bin/terraform \
-  && apk update --no-cache \
-  && apk upgrade --no-cache \
-  && apk add --no-cache bash \
-  && apk add --no-cache curl \
-  && rm -rf /var/cache/* \
-  && rm -rf /root/.cache/*
+RUN set -eux ;\
+  chmod +x /usr/bin/entrypoint.sh /usr/bin/terraform ;\
+  apk update --no-cache ;\
+  apk add --no-cache bash=5.0.11-r1 ;\
+  apk add --no-cache curl=7.67.0-r4 ;\
+  rm -rf /var/cache/* ;\
+  rm -rf /root/.cache/*
 
 # Finish up
-CMD terraform --version
+CMD ["terraform --version"]
 WORKDIR /github/workspace
-ENTRYPOINT entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
