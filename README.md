@@ -38,9 +38,9 @@ Features:
         dir_filter: modules
 ```
 
-Input Variable | Required | Default |Description
-:--- | :---: | :---: | :---
-dir_filter | No | `*` | Prefixes or sub-directories to search for Terraform modules. Use comma as separator.
+| Input Variable | Required | Default | Description                                                                          |
+| -------------- | -------- | ------- | ------------------------------------------------------------------------------------ |
+| dir_filter     | No       | `*`     | Prefixes or sub-directories to search for Terraform modules. Use comma as separator. |
 
 ## Examples
 
