@@ -54,8 +54,8 @@ RUN set -eux ;\
   chmod +x /usr/bin/entrypoint.sh /usr/bin/terraform ;\
   apk update --no-cache ;\
   apk add --no-cache \
-    bash~=5.2.12 \
-    curl~=7.86.0 ;\
+    bash~=5.2.15 \
+    curl~=7.87.0 ;\
   rm -rf /var/cache/* ;\
   rm -rf /root/.cache/*
 
