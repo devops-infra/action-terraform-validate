@@ -71,7 +71,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Validate Terraform modules
-      uses: devops-infra/action-terrraform-validate@v0.3
+      uses: devops-infra/action-terraform-validate@v0.3
       with:
         dir_filter: modules/aws,modules/gcp
 ```
