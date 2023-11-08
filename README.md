@@ -33,7 +33,7 @@ Features:
 
 ```yaml
     - name: Validate Terraform modules
-      uses: devops-infra/action-terraform-validate@v0.3
+      uses: devops-infra/action-terraform-validate@v0.3.1
       with:
         dir_filter: modules
 ```
@@ -56,7 +56,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Validate Terraform configuration
-      uses: devops-infra/action-terraform-validate@v0.3
+      uses: devops-infra/action-terraform-validate@v0.3.1
 ```
 
 Validate Terraform modules only in `modules/aws` and `modules/gcp` directories. Run the Action via DockerHub.
@@ -71,7 +71,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Validate Terraform modules
-      uses: devops-infra/action-terraform-validate@v0.3
+      uses: devops-infra/action-terraform-validate@v0.3.1
       with:
         dir_filter: modules/aws,modules/gcp
 ```
