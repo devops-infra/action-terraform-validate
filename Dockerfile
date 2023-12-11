@@ -2,7 +2,7 @@
 FROM devopsinfra/docker-terragrunt:tf-1.0.1-tg-0.31.0 as builder
 
 # Use a clean tiny image to store artifacts in
-FROM alpine:3.18.5
+FROM alpine:3.19.0
 
 # Labels for http://label-schema.org/rc1/#build-time-labels
 # And for https://github.com/opencontainers/image-spec/blob/master/annotations.md
@@ -54,9 +54,9 @@ RUN set -eux ;\
   chmod +x /usr/bin/entrypoint.sh /usr/bin/terraform ;\
   apk update --no-cache ;\
   apk add --no-cache \
-    bash~=5.2.15 \
-    curl~=8.4.0 \
-    git~=2.40.1 ;\
+    bash~=5.2 \
+    curl~=8.5 \
+    git~=2.43 ;\
   rm -rf /var/cache/* ;\
   rm -rf /root/.cache/*
 
