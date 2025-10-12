@@ -2,7 +2,7 @@ version: 2
 updates:
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: github-actions
-    directory: "/"
+    directory: /
     schedule:
       interval: daily
     assignees:
@@ -12,7 +12,7 @@ updates:
 
   # Enable version updates for Docker
   - package-ecosystem: docker
-    directory: "/"
+    directory: /
     schedule:
       interval: daily
     assignees:
@@ -22,7 +22,7 @@ updates:
 
 #  # Enable version updates for pip
 #  - package-ecosystem: pip
-#    directory: "/"
+#    directory: /
 #    schedule:
 #      interval: daily
 #    assignees:
