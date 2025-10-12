@@ -1,0 +1,160 @@
+version: '3'
+
+silent: true
+
+env:
+  DOCKER_BUILDKIT: '1'
+  TERM: xterm-256color
+
+vars:
+  # System context
+  SED:
+    sh: |
+      if [ "$(uname -s)" = "Darwin" ]; then
+        if command -v gsed >/dev/null 2>&1; then
+          echo gsed
+        else
+          if command -v brew >/dev/null 2>&1; then
+            # Quietly ensure gnu-sed is installed
+            brew list gnu-sed >/dev/null 2>&1 || {
+              HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ANALYTICS=1 brew update >/dev/null 2>&1 || true
+              HOMEBREW_NO_ENV_HINTS=1 HOMEBREW_NO_ANALYTICS=1 brew install gnu-sed >/dev/null 2>&1
+            }
+            echo gsed
+          else
+            echo sed
+          fi
+        fi
+      else
+        echo sed
+      fi
+
+  # Container metadata
+  DOCKER_IMAGE: '{{.DOCKER_IMAGE | default "action-terraform-validate"}}'
+  GITHUB_REPO: '{{.GITHUB_REPO | default "action-terraform-validate" }}'
+  DOCKER_ORG_NAME: '{{.DOCKER_ORG_NAME | default "devopsinfra"}}'
+  GITHUB_ORG_NAME: '{{.GITHUB_ORG_NAME | default "devops-infra"}}'
+  DOCKER_USERNAME: '{{.DOCKER_USERNAME | default "christophshyper"}}'
+  GITHUB_USERNAME: '{{.GITHUB_USERNAME | default "ChristophShyper"}}'
+  DOCKER_NAME: '{{.DOCKER_ORG_NAME}}/{{.DOCKER_IMAGE}}'
+  GITHUB_NAME: '{{.GITHUB_ORG_NAME}}/{{.GITHUB_REPO}}'
+  GHRC_NAME: ghcr.io/{{.GITHUB_ORG_NAME}}/{{.GITHUB_REPO}}
+
+  # Build context
+  CONTEXT: '{{.CONTEXT | default "."}}'
+  DOCKERFILE: '{{.DOCKERFILE | default "Dockerfile"}}'
+  PLATFORMS: '{{.PLATFORMS | default "linux/amd64,linux/arm64"}}'
+  BUILD_DATE:
+    sh: date -u +"%Y-%m-%dT%H:%M:%SZ"
+  LAST_RELEASE:
+    sh: |
+      curl --silent "https://api.github.com/repos/{{.GITHUB_ORG_NAME}}/{{.GITHUB_REPO}}/releases/latest" | \
+        grep '"tag_name":' | \
+        {{.SED}} -E 's/.*"([^"]+)".*/\1/'
+  LAST_MAJOR:
+    sh: echo "{{.LAST_RELEASE}}" | awk -F\. '{print $1}'
+  LAST_MINOR:
+    sh: echo "{{.LAST_RELEASE}}" | awk -F\. '{print $1"."$2}'
+  VERSION_SUFFIX:
+    sh: |
+      if [ "${VERSION_SUFFIX+x}" = "x" ]; then
+        printf "%s" "${VERSION_SUFFIX}"
+      else
+        printf "%s" "-test"
+      fi
+  VERSION:
+    sh: |
+      if [ -n "${VERSION:-}" ]; then
+        echo "${VERSION}"
+      elif [ -n "{{.LAST_RELEASE}}" ]; then
+        echo "{{.LAST_RELEASE}}"
+      else
+        echo "v0.0.0"
+      fi
+  VERSION_NO_V:
+    sh: v="{{.VERSION}}"; echo "${v#v}"
+  MAJOR:
+    sh: echo "{{.VERSION_NO_V}}" | awk -F\. '{print $1}'
+  MINOR:
+    sh: echo "{{.VERSION_NO_V}}" | awk -F\. '{print $2}'
+  PATCH:
+    sh: echo "{{.VERSION_NO_V}}" | awk -F\. '{print $3}'
+  VERSION_MAJOR: v{{.MAJOR}}
+  VERSION_MINOR: v{{.MAJOR}}.{{.MINOR}}
+  VERSION_FULL: v{{.MAJOR}}.{{.MINOR}}.{{.PATCH}}
+  NEXT_PATCH:
+    sh: echo $(( {{.PATCH}} + 1 ))
+  NEXT_MINOR:
+    sh: echo $(( {{.MINOR}} + 1 ))
+  NEXT_MAJOR:
+    sh: echo $(( {{.MAJOR}} + 1 ))
+
+  # Git metadata
+  DEFAULT_BRANCH: master
+  GIT_SHA:
+    sh: git rev-parse HEAD 2>/dev/null || echo 0000000000000000000000000000000000000000
+  GIT_SHORT_SHA:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo 0000000
+  GIT_BRANCH:
+    sh: |
+      if [ -n "${GITHUB_REF:-}" ]; then
+        echo "${GITHUB_REF#refs/heads/}"
+      else
+        git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown"
+      fi
+
+  # Docker metadata
+  DOCKER_BUILD_CMD:
+    sh: |
+      if docker buildx version >/dev/null 2>&1; then
+        echo "docker buildx build --platform {{.PLATFORMS}}"
+      else
+        echo "docker build"
+      fi
+  USE_CACHE: '{{.USE_CACHE | default "true"}}'
+  CACHE_FROM: type=registry,ref={{.GHRC_NAME}}:cache
+  CACHE_TO: type=registry,ref={{.GHRC_NAME}}:cache,mode=max
+  TAGS: >-
+    --tag {{.DOCKER_NAME}}:{{.VERSION_FULL}}{{.VERSION_SUFFIX}}
+    --tag {{.DOCKER_NAME}}:{{.VERSION_MINOR}}{{.VERSION_SUFFIX}}
+    --tag {{.DOCKER_NAME}}:{{.VERSION_MAJOR}}{{.VERSION_SUFFIX}}
+    --tag {{.DOCKER_NAME}}:latest{{.VERSION_SUFFIX}}
+    --tag {{.GHRC_NAME}}:{{.VERSION_FULL}}{{.VERSION_SUFFIX}}
+    --tag {{.GHRC_NAME}}:{{.VERSION_MINOR}}{{.VERSION_SUFFIX}}
+    --tag {{.GHRC_NAME}}:{{.VERSION_MAJOR}}{{.VERSION_SUFFIX}}
+    --tag {{.GHRC_NAME}}:latest{{.VERSION_SUFFIX}}
+
+  # Labels for http://label-schema.org/rc1/#build-time-labels
+  # And for https://github.com/opencontainers/image-spec/blob/master/annotations.md
+  LABEL_AUTHOR: '{{.LABEL_AUTHOR | default "Krzysztof Szyper christoph@shyper.pro"}}'
+  LABEL_NAME: '{{.LABEL_NAME | default "GitHub Action validating Terraform modules"}}'
+  LABEL_DESCRIPTION: '{{.LABEL_DESCRIPTION | default "GitHub Action automatically validating Terraform modules"}}'
+  LABEL_REPO_URL: '{{ default (printf "https://github.com/%s/%s" .GITHUB_ORG_NAME .DOCKER_IMAGE) .LABEL_REPO_URL }}'
+  LABEL_DOCS_URL: >-
+    {{ default (printf "https://github.com/%s/%s/blob/%s/README.md" .GITHUB_ORG_NAME .DOCKER_IMAGE
+    .DEFAULT_BRANCH) .LABEL_DOCS_URL }}
+  LABEL_HOMEPAGE: '{{.LABEL_HOMEPAGE | default "https://shyper.pro"}}'
+  LABEL_VENDOR: '{{.LABEL_VENDOR | default "DevOps-Infra"}}'
+  LABEL_LICENSE: '{{.LABEL_LICENSE | default "MIT"}}'
+  LABELS: >-
+    --label org.label-schema.build-date="{{.BUILD_DATE}}"
+    --label org.label-schema.name="{{.LABEL_NAME}}"
+    --label org.label-schema.description="{{.LABEL_DESCRIPTION}}"
+    --label org.label-schema.usage="{{.LABEL_DOCS_URL}}"
+    --label org.label-schema.url="{{.LABEL_HOMEPAGE}}"
+    --label org.label-schema.vcs-url="{{.LABEL_REPO_URL}}"
+    --label org.label-schema.vcs-ref="{{.GIT_SHA}}"
+    --label org.label-schema.vendor="{{.LABEL_VENDOR}}"
+    --label org.label-schema.version="{{.VERSION_FULL}}{{.VERSION_SUFFIX}}"
+    --label org.label-schema.schema-version="1.0"
+    --label org.opencontainers.image.created="{{.BUILD_DATE}}"
+    --label org.opencontainers.image.authors="{{.LABEL_AUTHOR}}"
+    --label org.opencontainers.image.url="{{.LABEL_HOMEPAGE}}"
+    --label org.opencontainers.image.documentation="{{.LABEL_DOCS_URL}}"
+    --label org.opencontainers.image.source="{{.LABEL_REPO_URL}}"
+    --label org.opencontainers.image.version="{{.VERSION_FULL}}{{.VERSION_SUFFIX}}"
+    --label org.opencontainers.image.revision="{{.GIT_SHA}}"
+    --label org.opencontainers.image.vendor="{{.LABEL_VENDOR}}"
+    --label org.opencontainers.image.licenses="{{.LABEL_LICENSE}}"
+    --label org.opencontainers.image.title="{{.LABEL_NAME}}"
+    --label org.opencontainers.image.description="{{.LABEL_DESCRIPTION}}"

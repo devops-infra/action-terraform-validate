@@ -3,5 +3,6 @@
 
 # Include
 !LICENSE
-!README.md
 !entrypoint.sh
+!Dockerfile
+!README.md
