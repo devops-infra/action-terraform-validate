@@ -8,7 +8,7 @@ inputs:
     default: "*"
 runs:
   using: docker
-  image: docker://devopsinfra/action-terraform-validate:v0.4.0
+  image: docker://devopsinfra/action-terraform-validate:v1.0.0
 branding:
   color: purple
   icon: upload-cloud
