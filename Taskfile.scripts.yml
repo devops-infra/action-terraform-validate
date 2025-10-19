@@ -11,7 +11,6 @@ tasks:
         task --list
         echo ""
         echo "Environment:"
-        echo "  DOCKER_BUILD_CMD={{.DOCKER_BUILD_CMD}}"
         echo "  DOCKER_NAME={{.DOCKER_NAME}}  DOCKER_USERNAME={{.DOCKER_USERNAME}}"
         echo "  GHRC_NAME={{.GHRC_NAME}}  GITHUB_USERNAME={{.GITHUB_USERNAME}}"
         echo "  LAST_RELEASE={{.LAST_RELEASE}}"  VERSION={{.VERSION}}   VERSION_FULL={{.VERSION_FULL}}
@@ -94,74 +93,167 @@ tasks:
     desc: Update version in README.md and action.yml
     cmds:
       - |
-        # check if VERSION if different than LAST_RELEASE
-        if [ "{{.VERSION}}" = "{{.LAST_RELEASE}}" ]; then
-          echo "❌ ERROR: VERSION is same as LAST_RELEASE ({{.VERSION}})"
+        # check if VERSION if different than VERSION_FROM_ACTION_YML
+        if [ "{{.VERSION}}" = "{{.VERSION_FROM_ACTION_YML}}" ]; then
+          echo "❌ ERROR: VERSION is same as VERSION_FROM_ACTION_YML ({{.VERSION}})"
           exit 1
         fi
-      - echo Updating full version from {{.LAST_RELEASE}} to {{.VERSION}}
-      - echo Updating minor version from {{.LAST_MINOR}} to {{.VERSION_MINOR}}
-      - echo Updating major version from {{.LAST_MAJOR}} to {{.VERSION_MAJOR}}
-      - "{{.SED}} -i 's#{{.DOCKER_NAME}}:{{.LAST_RELEASE}}#{{.DOCKER_NAME}}:{{.VERSION}}#g' action.yml"
-      - "{{.SED}} -i 's#{{.DOCKER_NAME}}@{{.LAST_RELEASE}}#{{.DOCKER_NAME}}@{{.VERSION}}#g' README.md"
-      - "{{.SED}} -i 's#{{.GITHUB_NAME}}@{{.LAST_RELEASE}}#{{.GITHUB_NAME}}@{{.VERSION}}#g' README.md"
-      - "{{.SED}} -i 's#{{.DOCKER_NAME}}@{{.LAST_MINOR}}#{{.DOCKER_NAME}}@{{.VERSION_MINOR}}#g' README.md"
-      - "{{.SED}} -i 's#{{.GITHUB_NAME}}@{{.LAST_MINOR}}#{{.GITHUB_NAME}}@{{.VERSION_MINOR}}#g' README.md"
-      - "{{.SED}} -i 's#{{.DOCKER_NAME}}@{{.LAST_MAJOR}}#{{.DOCKER_NAME}}@{{.VERSION_MAJOR}}#g' README.md"
-      - "{{.SED}} -i 's#{{.GITHUB_NAME}}@{{.LAST_MAJOR}}#{{.GITHUB_NAME}}@{{.VERSION_MAJOR}}#g' README.md"
+      - echo Updating full version from {{.VERSION_FROM_ACTION_YML}} to {{.VERSION}}
+      - echo Updating minor version from {{.MINOR_FROM_ACTION_YML}} to {{.VERSION_MINOR}}
+      - echo Updating major version from {{.MAJOR_FROM_ACTION_YML}} to {{.VERSION_MAJOR}}
+      - "{{.SED}} -i 's#{{.DOCKER_NAME}}:{{.VERSION_FROM_ACTION_YML}}#{{.DOCKER_NAME}}:{{.VERSION}}#g' action.yml"
+      - "{{.SED}} -i 's#{{.DOCKER_NAME}}@{{.VERSION_FROM_ACTION_YML}}#{{.DOCKER_NAME}}@{{.VERSION}}#g' README.md"
+      - "{{.SED}} -i 's#{{.GITHUB_NAME}}@{{.VERSION_FROM_ACTION_YML}}#{{.GITHUB_NAME}}@{{.VERSION}}#g' README.md"
+      - "{{.SED}} -i 's#{{.DOCKER_NAME}}@{{.MINOR_FROM_ACTION_YML}}#{{.DOCKER_NAME}}@{{.VERSION_MINOR}}#g' README.md"
+      - "{{.SED}} -i 's#{{.GITHUB_NAME}}@{{.MINOR_FROM_ACTION_YML}}#{{.GITHUB_NAME}}@{{.VERSION_MINOR}}#g' README.md"
+      - "{{.SED}} -i 's#{{.DOCKER_NAME}}@{{.MAJOR_FROM_ACTION_YML}}#{{.DOCKER_NAME}}@{{.VERSION_MAJOR}}#g' README.md"
+      - "{{.SED}} -i 's#{{.GITHUB_NAME}}@{{.MAJOR_FROM_ACTION_YML}}#{{.GITHUB_NAME}}@{{.VERSION_MAJOR}}#g' README.md"
 
-  lint:action:
+  lint:actionlint:
     desc: Lint GitHub Actions workflows with actionlint
     cmds:
       - |
-        set -eu
-        if (set -o | grep -q pipefail) 2>/dev/null; then set -o pipefail; fi
-        if docker run --rm -i -v "$PWD:/work" -w /work rhysd/actionlint:latest -color; then
+        echo "▶️ Running actionlint..."
+        set +e
+        docker run --rm -i -v "$PWD:/work" -w /work rhysd/actionlint:latest -color
+        rc=$?
+        set -e
+        if [ "$rc" -eq 0 ]; then
           echo "✅ actionlint passed"
         else
-          ec=$?
-          echo "❌ actionlint failed (exit $ec)"
-          exit "$ec"
+          echo "❌ actionlint failed"
+          exit $rc
         fi
 
-  lint:docker:
+  lint:hadolint:
     desc: Lint Dockerfile with hadolint
     cmds:
       - |
-        set -eu
-        if (set -o | grep -q pipefail) 2>/dev/null; then set -o pipefail; fi
-        if docker run --rm -i -v "$PWD:/work" -w /work hadolint/hadolint:latest-debian hadolint Dockerfile; then
+        echo "▶️ Running hadolint..."
+        set +e
+        docker run --rm -i -v "$PWD:/work" -w /work hadolint/hadolint:latest-debian < Dockerfile
+        rc=$?
+        set -e
+        if [ "$rc" -eq 0 ]; then
           echo "✅ hadolint passed"
         else
-          ec=$?
-          echo "❌ hadolint failed (exit $ec)"
-          exit "$ec"
+          echo "❌ hadolint failed"
+          exit $rc
         fi
 
-  lint:shell:
+  lint:shellcheck:
     desc: Lint shell scripts with shellcheck
     cmds:
       - |
-        set -eu
-        if (set -o | grep -q pipefail) 2>/dev/null; then set -o pipefail; fi
-        if docker run --rm -i -v "$PWD:/work" -w /work koalaman/shellcheck:stable -x -S style entrypoint.sh; then
+        echo "▶️ Running shellcheck..."
+        set +e
+        docker run --rm -i -v "$PWD:/work" -w /work koalaman/shellcheck:stable -x -S style entrypoint.sh
+        rc=$?
+        set -e
+        if [ "$rc" -eq 0 ]; then
           echo "✅ shellcheck passed"
         else
-          ec=$?
-          echo "❌ shellcheck failed (exit $ec)"
-          exit "$ec"
+          echo "❌ shellcheck failed"
+          exit $rc
         fi
 
-  lint:yaml:
+  lint:yamllint:
     desc: Lint YAML files with yamllint
     cmds:
       - |
-        set -eu
-        if (set -o | grep -q pipefail) 2>/dev/null; then set -o pipefail; fi
-        if docker run --rm -i -v "$PWD:/work" -w /work cytopia/yamllint -c .yamllint.yml .; then
+        echo "▶️ Running yamllint..."
+        set +e
+        docker run --rm -i -v "$PWD:/work" -w /work cytopia/yamllint -c .yamllint.yml .
+        rc=$?
+        set -e
+        if [ "$rc" -eq 0 ]; then
           echo "✅ yamllint passed"
         else
-          ec=$?
-          echo "❌ yamllint failed (exit $ec)"
-          exit "$ec"
+          echo "❌ yamllint failed"
+          exit $rc
         fi
+
+  docker:build:inspect:
+    desc: Inspect built Docker image
+    cmds:
+      - |
+        image_inspect_out=$(docker image inspect {{.DOCKER_NAME}}:{{.VERSION_FULL}}{{.VERSION_SUFFIX}} | jq -r)
+        echo -e "\nℹ️ Docker image inspect:"
+        echo "$image_inspect_out" | jq
+
+  docker:push:inspect:
+    desc: Inspect built Docker image
+    cmds:
+      - |
+        set -eu
+        image="{{.DOCKER_NAME}}:{{.VERSION_FULL}}{{.VERSION_SUFFIX}}"
+
+        echo -e "\nℹ️ Trying local image inspect: $image"
+        set +e
+        image_inspect_out=$(docker image inspect "$image" 2>/dev/null || true)
+        rc=$?
+        set -e
+
+        # Validate that docker inspect returned a non-empty array with an Id
+        has_local=0
+        if [ "$rc" -eq 0 ] && [ -n "$image_inspect_out" ]; then
+          if echo "$image_inspect_out" | jq -e 'type=="array" and (length > 0) and \
+              (.[0].Id != null and .[0].Id != "")' >/dev/null 2>&1; then
+            has_local=1
+          fi
+        fi
+
+        if [ "$has_local" -eq 1 ]; then
+          echo -e "\n✅ Local image found. Docker image inspect:"
+          echo "$image_inspect_out" | jq
+          image_sha=$(echo "$image_inspect_out" | jq -r '.[0].Id // empty')
+          if [ -n "$image_sha" ]; then
+            echo -e "\nℹ️ Docker manifest inspect (local):"
+            docker manifest inspect "${image}@${image_sha}" | jq || true
+          fi
+          exit 0
+        fi
+
+        echo -e "\nℹ️ Local image not found or inspect returned empty; inspecting remote with buildx imagetools..."
+        set +e
+        raw=$(docker buildx imagetools inspect --raw "$image" 2>/dev/null || true)
+        set -e
+
+        if [ -z "$raw" ]; then
+          echo "❌ Failed to inspect remote image with buildx imagetools: $image"
+          exit 1
+        fi
+
+        echo -e "\n✅ Remote manifest/index (raw):"
+        echo "$raw" | jq
+
+        echo -e "\nℹ️ Attempting to pull and inspect per-platform manifests:"
+        echo "$raw" | jq -r '.manifests[]?.digest' | while IFS= read -r digest; do
+          if [ -z "$digest" ] || [ "$digest" = "null" ]; then
+            continue
+          fi
+          ref="${image%@*}@${digest}"
+          echo -e "\nℹ️ Pulling $ref (may fail for some registries)..."
+          set +e
+          docker pull "$ref" >/dev/null 2>&1 || true
+          pulled_rc=$?
+          set -e
+          if [ "$pulled_rc" -eq 0 ]; then
+            echo "ℹ️ Inspecting pulled image $ref"
+            docker image inspect "$ref" | jq || true
+          else
+            echo "⚠️ Could not pull $ref; skipping image inspect"
+          fi
+        done
+
+  git:get-pr-template:
+    desc: Get pull request template
+    cmds:
+      - mkdir -p .tmp
+      - curl -LsS https://raw.githubusercontent.com/devops-infra/.github/master/PULL_REQUEST_TEMPLATE.md -o .tmp/PULL_REQUEST_TEMPLATE.md
+
+  git:set-config:
+    desc: Set git user config
+    cmds:
+      - git config user.name "github-actions[bot]"
+      - git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -1,12 +1,11 @@
-name: Manual Release
+name: (Auto) Create release
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: Release version (e.g., v1.2.3)
-        required: true
-        type: string
+  pull_request:
+    types: [closed]
+  push:
+    branches:
+      - release/**
 
 permissions:
   contents: write
@@ -14,6 +13,7 @@ permissions:
 
 jobs:
   release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
     name: Create Release
     runs-on: ubuntu-24.04-arm
     steps:
@@ -29,12 +29,14 @@ jobs:
           version: 3.x
 
       - name: Create and push git tags
+        id: version
         env:
-          VERSION: ${{ github.event.inputs.version }}
+          VERSION_SUFFIX: ""
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          task lint
+          task git:set-config
           task version:tag-release
+          echo "REL_VERSION=$(task version:get)" >> "$GITHUB_OUTPUT"
 
       - name: Install Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -47,26 +49,35 @@ jobs:
           image: tonistiigi/binfmt:latest
           platforms: amd64,arm64
 
-      - name: Build and push Docker images
+      - name: Get Docker commands
+        env:
+          VERSION_SUFFIX: ""
+        run: task docker:cmds
+
+      - name: Build and Push
         env:
           DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ github.event.inputs.version }}
           VERSION_SUFFIX: ""
         run: task docker:push
 
-      - name: Create GitHub Release
+      - name: Inspect image
+        env:
+          VERSION_SUFFIX: ""
+        run: task docker:push:inspect
+
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.inputs.version }}
-          name: ${{ github.event.inputs.version }}
+          tag_name: ${{ steps.version.outputs.REL_VERSION }}
+          name: ${{ steps.version.outputs.REL_VERSION }}
           draft: false
           prerelease: false
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Docker Hub description
+      - name: Update Docker hub description
         uses: peter-evans/dockerhub-description@v5
         with:
           username: ${{ vars.DOCKER_USERNAME }}
