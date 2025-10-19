@@ -1,23 +1,26 @@
 # Instead of building from scratch pull my other docker image
 FROM devopsinfra/docker-terragrunt:slim-tf-latest AS builder
 
-# Use a clean tiny image to store artifacts in
-FROM alpine:3.22.2
+FROM ubuntu:questing-20251007
+
+# Disable interactive mode
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Copy all needed files
 COPY --from=builder /usr/bin/terraform /usr/bin/
 COPY entrypoint.sh /usr/bin/
 
 # Install needed packages
-RUN set -eux ;\
-  chmod +x /usr/bin/entrypoint.sh /usr/bin/terraform ;\
-  apk update --no-cache ;\
-  apk add --no-cache \
-    bash~=5.2 \
-    curl~=8.14 \
-    git~=2.49 ;\
-  rm -rf /var/cache/* ;\
-  rm -rf /root/.cache/*
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
+# hadolint ignore=DL3008
+RUN chmod +x /usr/bin/entrypoint.sh /usr/bin/terraform ;\
+  apt-get update -y ;\
+  apt-get install --no-install-recommends -y \
+    bash \
+    curl \
+    git ;\
+  apt-get clean ;\
+  rm -rf /var/lib/apt/lists/*
 
 # Finish up
 CMD ["terraform --version"]
