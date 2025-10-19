@@ -1,5 +1,4 @@
 # GitHub Action validating Terraform modules
-
 **GitHub Action automatically validating Terraform modules.**
 
 
@@ -30,8 +29,14 @@
 ](https://hub.docker.com/r/devopsinfra/action-terraform-validate "shields.io")
 
 
-## 📖 API Reference
+## 🏷️ Version Tags: vX, vX.Y, vX.Y.Z
+This action supports three tag levels for flexible versioning:
+- `vX`: latest patch of the major version (e.g., `v1`).
+- `vX.Y`: latest patch of the minor version (e.g., `v1.2`).
+- `vX.Y.Z`: fixed to a specific release (e.g., `v1.2.3`).
 
+
+## 📖 API Reference
 ```yaml
     - name: Validate Terraform modules
       uses: devops-infra/action-terraform-validate@v1.0.0
@@ -39,8 +44,8 @@
         dir_filter: modules
 ```
 
-### 🔧 Input Paremeters
 
+### 🔧 Input Paremeters
 | Input        | Required | Default | Description                                                                          |
 |:-------------|:--------:|:-------:|--------------------------------------------------------------------------------------|
 | `dir_filter` |    No    |   `*`   | Prefixes or sub-directories to search for Terraform modules. Use comma as separator. |
@@ -49,7 +54,7 @@
 ## 💻 Usage Examples
 
 ### 📝 Basic
-Validate whole Terraform setup in repository root. Run the Action via GitHub.
+Validate whole Terraform setup in repository root.
 
 ```yaml
 name: Validate Terraform
@@ -67,7 +72,7 @@ jobs:
 ```
 
 ### 🔀 Advanced
-Validate Terraform modules only in `modules/aws` and `modules/gcp` directories. Run the Action via DockerHub.
+Validate Terraform modules only in `modules/aws` and `modules/gcp` directories.
 
 ```yaml
 name: Validate Terraform
@@ -85,12 +90,6 @@ jobs:
       with:
         dir_filter: modules/aws,modules/gcp
 ```
-
-## 🏷️ Version Tags: vX, vX.Y, vX.Y.Z
-This action supports three tag levels for flexible versioning:
-- `vX`: latest patch of the major version (e.g., `v1`).
-- `vX.Y`: latest patch of the minor version (e.g., `v1.2`).
-- `vX.Y.Z`: fixed to a specific release.
 
 
 ## 🤝 Contributing

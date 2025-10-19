@@ -1,11 +1,14 @@
 name: GitHub Action validating Terraform modules
-author: Krzysztof Szyper / ChristophShyper / biotyk@mail.com
+author: Krzysztof Szyper / ChristophShyper / shyper.pro
 description: GitHub Action automatically validating Terraform modules
 inputs:
   dir_filter:
     description: Filter for directories to check. Check all by default
     required: false
     default: "*"
+outputs:
+  dir_filter:
+    description: Input of 'dir_filter'
 runs:
   using: docker
   image: docker://devopsinfra/action-terraform-validate:v1.0.0

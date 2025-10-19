@@ -22,33 +22,38 @@ tasks:
     cmds:
       - pre-commit run --all-files
 
+  pre-commit:install:
+    desc: Install pre-commit hooks
+    cmds:
+      - pre-commit install
+
   lint:
     desc: Run all linters (Dockerfile, shell scripts, workflows, YAML)
     cmds:
-      - task: lint:action
-      - task: lint:docker
-      - task: lint:shell
-      - task: lint:yaml
+      - task: lint:actionlint
+      - task: lint:hadolint
+      - task: lint:shellcheck
+      - task: lint:yamllint
 
-  lint:action:
+  lint:actionlint:
     desc: Lint GitHub Actions workflows with actionlint
     cmds:
-      - task: scripts:lint:action
+      - task: scripts:lint:actionlint
 
-  lint:docker:
+  lint:hadolint:
     desc: Lint Dockerfile with hadolint
     cmds:
-      - task: scripts:lint:docker
+      - task: scripts:lint:hadolint
 
-  lint:shell:
+  lint:shellcheck:
     desc: Lint shell scripts with shellcheck
     cmds:
-      - task: scripts:lint:shell
+      - task: scripts:lint:shellcheck
 
-  lint:yaml:
+  lint:yamllint:
     desc: Lint YAML files with yamllint
     cmds:
-      - task: scripts:lint:yaml
+      - task: scripts:lint:yamllint
 
   docker:login:
     desc: Login to hub.docker.com and ghcr.io
@@ -65,14 +70,34 @@ tasks:
   docker:build:
     desc: Build Docker image
     cmds:
-      - '{{.DOCKER_BUILD_CMD}} {{.LABELS}} {{.TAGS}} --file={{.DOCKERFILE}} .'
+      - '{{.DOCKER_BUILD_START}} {{.DOCKER_BUILD_FINISH}}'
+
+  docker:build:inspect:
+    desc: Inspect built Docker image
+    cmds:
+      - task: scripts:docker:build:inspect
 
   docker:push:
     desc: Build and push Docker images
     deps:
       - task: docker:login
     cmds:
-      - '{{.DOCKER_BUILD_CMD}} --push {{.LABELS}} {{.TAGS}} --file={{.DOCKERFILE}} .'
+      - '{{.DOCKER_BUILD_START}} --push {{.DOCKER_BUILD_FINISH}}'
+
+  docker:push:inspect:
+    desc: Inspect built Docker image
+    cmds:
+      - task: scripts:docker:push:inspect
+
+  docker:cmds:
+    desc: Show full docker build command
+    cmds:
+      - echo -e '{{.DOCKER_BUILD_START}} {{.DOCKER_BUILD_FINISH}}' | {{.SED}} 's/--/ \\\n  --/g'
+
+  version:get:
+    desc: Get current version
+    cmds:
+      - echo "{{.VERSION}}"
 
   version:set:
     desc: Update version in README.md and action.yml to specified VERSION
@@ -98,3 +123,13 @@ tasks:
     desc: Increment major version (e.g., 1.2.3 -> 2.0.0)
     cmds:
       - task version:set VERSION=v{{.NEXT_MAJOR}}.0.0
+
+  git:get-pr-template:
+    desc: Get pull request template
+    cmds:
+      - task: scripts:git:get-pr-template
+
+  git:set-config:
+    desc: Set git user config
+    cmds:
+      - task: scripts:git:set-config

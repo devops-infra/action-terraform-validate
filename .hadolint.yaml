@@ -1,5 +1,13 @@
-failure-threshold: warning
+failure-threshold: error
 format: tty
+strict-labels: false
+no-color: false
+no-fail: false
+disable-ignore-pragma: false
+trustedRegistries:
+  - docker.io
+  - ghcr.io
+
 # ignored: [string]
 # label-schema:
 #   author: text
@@ -9,13 +17,8 @@ format: tty
 #   documentation: url
 #   git-revision: hash
 #   license: spdx
-no-color: false
-# no-fail: boolean
 # override:
 #   error: [string]
 #   warning: [string]
 #   info: [string]
 #   style: [string]
-strict-labels: false
-disable-ignore-pragma: false
-trustedRegistries: [docker.io]
