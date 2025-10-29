@@ -24,23 +24,23 @@ repos:
       - id: trailing-whitespace
   - repo: local
     hooks:
-      - id: action
-        name: action
+      - id: actionlint
+        name: actionlint
         entry: bash -lc 'docker run --rm -v "$PWD:/work" -w /work rhysd/actionlint:latest -color'
         language: system
         pass_filenames: false
-      - id: docker
-        name: docker
+      - id: hadolint
+        name: hadolint
         entry: bash -lc 'docker run --rm -v "$PWD:/work" -w /work hadolint/hadolint:latest-debian hadolint Dockerfile'
         language: system
         pass_filenames: false
-      - id: shell
-        name: shell
+      - id: shellcheck
+        name: shellcheck
         entry: bash -lc 'docker run --rm -v "$PWD:/work" -w /work koalaman/shellcheck:stable -x -S style entrypoint.sh'
         language: system
         pass_filenames: false
-      - id: yaml
-        name: yaml
+      - id: yamllint
+        name: yamllint
         entry: bash -lc 'docker run --rm -v "$PWD:/work" -w /work cytopia/yamllint -c .yamllint.yml .'
         language: system
         pass_filenames: false
