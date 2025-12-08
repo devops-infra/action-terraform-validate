@@ -1,7 +1,7 @@
 # Instead of building from scratch pull my other docker image
 FROM devopsinfra/docker-terragrunt:slim-tf-latest AS builder
 
-FROM ubuntu:questing-20251007
+FROM ubuntu:questing-20251029
 
 # Disable interactive mode
 ENV DEBIAN_FRONTEND=noninteractive
