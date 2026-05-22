@@ -10,7 +10,7 @@
 ## ✨ Features
 * Main action is using `terraform validate`.
 * It's a stripped down image of my other creation - [devops-infra/docker-terragrunt](https://github.com/devops-infra/docker-terragrunt) - framework for managing Infrastructure-as-a-Code.
-* it's main use will be everywhere where [Terraform](https://github.com/hashicorp/terraform) or [OpenTofu](https://github.com/opentofu/opentofu) is used and is great for statically or actively checking modules' sources.
+* Its main use will be everywhere where [Terraform](https://github.com/hashicorp/terraform) or [OpenTofu](https://github.com/opentofu/opentofu) is used and is great for statically or actively checking modules' sources.
 
 
 ## 📊 Badges
@@ -47,7 +47,7 @@ This action supports three tag levels for flexible versioning:
 ```
 
 
-### 🔧 Input Paremeters
+### 🔧 Input Parameters
 | Input        | Required | Default | Description                                                                          |
 |:-------------|:--------:|:-------:|--------------------------------------------------------------------------------------|
 | `dir_filter` |    No    |   `*`   | Prefixes or sub-directories to search for Terraform modules. Use comma as separator. |
@@ -55,7 +55,7 @@ This action supports three tag levels for flexible versioning:
 
 ## 💻 Usage Examples
 
-### 📝 Basic
+### 📝 Basic Example
 Validate whole Terraform setup in repository root.
 
 ```yaml
@@ -73,7 +73,7 @@ jobs:
       uses: devops-infra/action-terraform-validate@v1.0.3
 ```
 
-### 🔀 Advanced
+### 🔀 Advanced Example
 Validate Terraform modules only in `modules/aws` and `modules/gcp` directories.
 
 ```yaml
@@ -91,6 +91,32 @@ jobs:
       uses: devops-infra/action-terraform-validate@v1.0.3
       with:
         dir_filter: modules/aws,modules/gcp
+```
+
+
+### 🎯 Use specific version
+Pick the tag level based on your stability needs:
+- `vX.Y.Z`: exact immutable release (most predictable)
+- `vX.Y`: latest patch within one minor line
+- `vX`: latest patch within one major line
+
+```yaml
+name: Use pinned action version
+on: [push]
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: devops-infra/action-terraform-validate@v1.0.3
+        id: pin-patch
+
+      - uses: devops-infra/action-terraform-validate@v1.0
+        id: pin-minor
+
+      - uses: devops-infra/action-terraform-validate@v1
+        id: pin-major
 ```
 
 
