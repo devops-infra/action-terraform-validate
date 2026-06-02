@@ -9,7 +9,6 @@
 
 ## ✨ Features
 * Main action is using `terraform validate`.
-* It's a stripped down image of my other creation - [devops-infra/docker-terragrunt](https://github.com/devops-infra/docker-terragrunt) - framework for managing Infrastructure-as-a-Code.
 * Its main use will be everywhere where [Terraform](https://github.com/hashicorp/terraform) or [OpenTofu](https://github.com/opentofu/opentofu) is used and is great for statically or actively checking modules' sources.
 
 
