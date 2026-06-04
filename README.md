@@ -40,7 +40,7 @@ This action supports three tag levels for flexible versioning:
 ## 📖 API Reference
 ```yaml
     - name: Validate Terraform modules
-      uses: devops-infra/action-terraform-validate@v1.0.5
+      uses: devops-infra/action-terraform-validate@v1.0.6
       with:
         dir_filter: modules
 ```
@@ -69,7 +69,7 @@ jobs:
       uses: actions/checkout@v6
 
     - name: Validate Terraform configuration
-      uses: devops-infra/action-terraform-validate@v1.0.5
+      uses: devops-infra/action-terraform-validate@v1.0.6
 ```
 
 ### 🔀 Advanced Example
@@ -87,7 +87,7 @@ jobs:
       uses: actions/checkout@v6
 
     - name: Validate Terraform modules
-      uses: devops-infra/action-terraform-validate@v1.0.5
+      uses: devops-infra/action-terraform-validate@v1.0.6
       with:
         dir_filter: modules/aws,modules/gcp
 ```
@@ -108,7 +108,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: devops-infra/action-terraform-validate@v1.0.5
+      - uses: devops-infra/action-terraform-validate@v1.0.6
         id: pin-patch
 
       - uses: devops-infra/action-terraform-validate@v1.0
