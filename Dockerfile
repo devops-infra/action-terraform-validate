@@ -1,6 +1,6 @@
 FROM hashicorp/terraform:1.16 AS terraform
 
-FROM alpine:3.24.1
+FROM alpine:3.24.2
 
 # Copy all needed files
 COPY --from=terraform /bin/terraform /usr/bin/terraform
